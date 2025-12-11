@@ -3,6 +3,7 @@ from pypdf import PdfReader
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
+import pdfplumber
 
 #Load embedding model
 model = SentenceTransformer("all-miniLM-L6-v2")
@@ -29,14 +30,24 @@ def chunk_text(text,max_length=300):
 # load PDFs/TXT from data
 def load_documents():
     docs = []
-    for file in os.listdir("data"):
-        path = os.path.join("data",file)
+    for file in os.listdir(r"C:\LearnPy\personalChatBot\data"):
+        path = os.path.join(r"C:\LearnPy\personalChatBot\data",file)
 
         if file.endswith(".pdf"):
             reader = PdfReader(path)
             text = ""
+            # with pdfplumber.open(path) as pdf:
             for page in reader.pages:
                 text += page.extract_text()
+                # for page in pdf.pages:
+                #     page_text = page.extract_text()
+
+                #     if page_text:
+                #         text += page_text + " "
+               
+
+            # text = text.replace("\n","")
+            # text = "".join(text.split())
 
             docs.extend(chunk_text(text))
 
