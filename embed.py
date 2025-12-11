@@ -3,7 +3,6 @@ from pypdf import PdfReader
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
-import pdfplumber
 
 #Load embedding model
 model = SentenceTransformer("all-miniLM-L6-v2")
@@ -19,7 +18,7 @@ def chunk_text(text,max_length=300):
         current_chunk.append(word)
 
         if len(current_chunk) >= max_length:
-            chunks.append("".join(current_chunk))
+            chunks.append(" ".join(current_chunk))
             current_chunk = []
 
     if current_chunk:
@@ -36,19 +35,10 @@ def load_documents():
         if file.endswith(".pdf"):
             reader = PdfReader(path)
             text = ""
-            # with pdfplumber.open(path) as pdf:
+
             for page in reader.pages:
                 text += page.extract_text()
-                # for page in pdf.pages:
-                #     page_text = page.extract_text()
-
-                #     if page_text:
-                #         text += page_text + " "
                
-
-            # text = text.replace("\n","")
-            # text = "".join(text.split())
-
             docs.extend(chunk_text(text))
 
         elif file.endswith(".txt"):
@@ -56,7 +46,7 @@ def load_documents():
                 text = f.read()
                 docs.extend(chunk_text(text))
         
-        return docs
+    return docs
 
 documents = load_documents()
 print(f"total chunks created : {len(documents)}")
