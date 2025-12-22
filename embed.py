@@ -5,7 +5,7 @@ import faiss
 import numpy as np
 
 #Load embedding model
-model = SentenceTransformer("all-miniLM-L6-v2")
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 #chunking function
 def chunk_text(text,max_length=300):
@@ -22,7 +22,7 @@ def chunk_text(text,max_length=300):
             current_chunk = []
 
     if current_chunk:
-        chunks.append("".join(current_chunk))
+        chunks.append(" ".join(current_chunk))
     
     return chunks
 
@@ -44,18 +44,25 @@ def load_documents():
         elif file.endswith(".txt"):
             with open(path,"r",encoding="utf-8") as f:
                 text = f.read()
+                text = text.replace("\n", " ")
+                text = " ".join(text.split())
                 docs.extend(chunk_text(text))
         
     return docs
 
 documents = load_documents()
+
+documents = documents[2:]
+
+
 print(f"total chunks created : {len(documents)}")
 
 #generate embeddings for each chunks
 embeddings = model.encode(documents, convert_to_numpy = True)
+faiss.normalize_L2(embeddings)
 
 #save vector with faiss
-index = faiss.IndexFlatL2(embeddings.shape[1])
+index = faiss.IndexFlatIP(embeddings.shape[1])
 index.add(embeddings)
 
 faiss.write_index(index,"vector_store.index")
