@@ -1,6 +1,7 @@
 import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
+import ollama
 
 #load the embedding 
 model = SentenceTransformer("all-miniLM-L6-v2")
@@ -23,17 +24,35 @@ while True:
     #search Faiss index
     distances, indices = index.search(query_embedding,3)
 
-    #show the closest answers
-    # closest_index = indices[0][0]
+    #combile top chunks
+    context = "\n\n".join([documents[i] for i in indices[0]])
 
-    # print("\nAnswers:")
-    # print(documents[closest_index][:300],"...")
+    # print("\nTop 5 matches(DEBUG):\n")
+    # for rank, idx in enumerate(indices[0]):
+    #     print(f"Rank{rank+1}(chunk {idx}):")
+    #     print(documents[idx][:300])
+    #     print("-"*60)
 
-    print("\nTop 5 matches(DEBUG):\n")
-    for rank, idx in enumerate(indices[0]):
-        print(f"Rank{rank+1}(chunk {idx}):")
-        print(documents[idx][:300])
-        print("-"*60)
+    #build prompt
+    prompt = f"""
+use the context below to answer the question clearly and concisely.
+
+Context:
+{context}
+
+Question:
+{query}
+
+Answer:
+"""
+    #Ask LLM
+    response = ollama.chat(
+        model="llama3",
+        messages=[{"role":"user","content":prompt}]
+    )
+
+    print("\nAnswer:")
+    print(response["message"]["content"])
 
 
 
