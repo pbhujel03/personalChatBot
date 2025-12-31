@@ -13,9 +13,12 @@ index = faiss.read_index("vector_store.index")
 # ask questions
 while True:
     raw_query = input("\n Ask anything from the notes.(type exit to quit):")
-    query = f"Explain the {raw_query} described in the document"
-    if query.lower()=="exit":
+    
+    if raw_query.lower()=="exit":
+        print("Exiting..")
         break
+
+    query = f"Explain the {raw_query} described in the document"
 
     #convert the query into embedding 
     query_embedding = model.encode([query],convert_to_numpy=True)
