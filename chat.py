@@ -27,7 +27,7 @@ while True:
     #search Faiss index
     distances, indices = index.search(query_embedding,3)
 
-    #combile top chunks
+    #compile top chunks
     context = "\n\n".join([documents[i] for i in indices[0]])
 
     # print("\nTop 5 matches(DEBUG):\n")
